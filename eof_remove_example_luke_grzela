@@ -1,0 +1,36 @@
+def main ():
+    args = parse_command_line_arguments ()
+
+    in_file = args.input
+    out_file = args.input
+    if args.output:
+        out_file = args.output
+
+    print ("Reading from {} ...".format (in_file))
+
+    lines = None
+    with open(in_file, 'r') as fh:
+        lines = fh.readlines()
+
+    blank_line_pattern = re.compile (r'^\r?\n$')
+    truncated = False
+
+    while (blank_line_pattern.match (lines[-1])):
+        print ("Found blank line at the end of file, truncating")
+        truncated = True
+        lines = lines[:-1]
+
+    new_line_ending_pattern = re.compile (r'^.*\r*\n$')
+    if new_line_ending_pattern.match (lines[-1]):
+        print ("Found new line at the end of last line, stripping")
+        truncated = True
+        # remove the trailing new line char(s)
+        lines[-1] = lines[-1].rstrip('\n').rstrip('\r')
+
+    if truncated:
+        print ("Writing truncated contents to {}".format (out_file))
+        with open (out_file, 'w') as out:
+            out.writelines (lines)
+
+if __name__ == "__main__":
+    main ()
